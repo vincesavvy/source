@@ -1,7 +1,9 @@
-import SignUpPage from "./SignUpPage.vue";
-import { render, screen } from "@testing-library/vue";
 import "@testing-library/jest-dom"
+import { render, screen } from "@testing-library/vue";
 import userEvent from "@testing-library/user-event"
+import axios from 'axios'
+
+import SignUpPage from "./SignUpPage.vue";
 
 describe("SignUp Page", () => {
 
@@ -85,9 +87,39 @@ describe("SignUp Page", () => {
       const button = screen.queryByRole("button", {name: "Sign Up"})
 
       expect(button).toBeEnabled()
-
     })
 
+    it("Sends username, email and password to backend after clicking button.", async () => {
+      render(SignUpPage)
+      const usernameInput = screen.queryByLabelText('Username')
+      const emailInput = screen.queryByLabelText('Email')
+      const passwordInput = screen.queryByLabelText('Password')
+      const passwordRepeatInput = screen.queryByLabelText('Password Repeat')
+
+      await userEvent.type(usernameInput, "user1") // The "type" action is asynchronus, so this test needs to be async.
+      await userEvent.type(emailInput, "user1@mail.com")
+      await userEvent.type(passwordInput, "P4ssword")
+      await userEvent.type(passwordRepeatInput, "P4ssword")
+
+      const button = screen.queryByRole("button", {name: "Sign Up"})
+
+      const mockFn = jest.fn()
+      axios.post = mockFn
+      
+      await userEvent.click(button);
+
+      /* IMPORTANT:
+       * See lecture "10. Making API Request" for the explanation on mocking axios call. 
+      */
+      const firstCall = mockFn.mock.calls[0]
+      const body = firstCall[1] // Here we take index "[1]" to get the body, because index "[0]" would be the url.
+
+      expect(body).toEqual({
+        username: 'user1',
+        email: 'user1@mail.com',
+        password: 'P4ssword'
+      })
+    })
   })
 
 })
