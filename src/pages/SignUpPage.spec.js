@@ -1,6 +1,7 @@
 import SignUpPage from "./SignUpPage.vue";
 import { render, screen } from "@testing-library/vue";
 import "@testing-library/jest-dom"
+import userEvent from "@testing-library/user-event"
 
 describe("SignUp Page", () => {
 
@@ -69,8 +70,26 @@ describe("SignUp Page", () => {
     
       expect(button).toBeDisabled()
     });
+  })
+
+  describe("Interactions", () => {
+    
+    it("Enables the button when the password and password repeat fields have the same value.", async () => {
+      render(SignUpPage)
+      const passwordInput = screen.queryByLabelText('Password')
+      const passwordRepeatInput = screen.queryByLabelText('Password Repeat')
+
+      await userEvent.type(passwordInput, "P4ssword") // The "type" action is asynchronus, so this test needs to be async.
+      await userEvent.type(passwordRepeatInput, "P4ssword")
+
+      const button = screen.queryByRole("button", {name: "Sign Up"})
+
+      expect(button).toBeEnabled()
+
+    })
 
   })
+
 })
 
 
