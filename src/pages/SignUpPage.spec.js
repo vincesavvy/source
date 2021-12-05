@@ -85,9 +85,26 @@ describe("SignUp Page", () => {
       const button = screen.queryByRole("button", {name: "Sign Up"})
 
       expect(button).toBeEnabled()
-
     })
 
+    it("Sends username, email and password to backend after clicking button.", async () => {
+      render(SignUpPage)
+      const usernameInput = screen.queryByLabelText('Username')
+      const emailInput = screen.queryByLabelText('Email')
+      const passwordInput = screen.queryByLabelText('Password')
+      const passwordRepeatInput = screen.queryByLabelText('Password Repeat')
+
+      await userEvent.type(usernameInput, "user1") // The "type" action is asynchronus, so this test needs to be async.
+      await userEvent.type(emailInput, "user1@mail.com")
+      await userEvent.type(passwordInput, "P4ssword")
+      await userEvent.type(passwordRepeatInput, "P4ssword")
+
+      const button = screen.queryByRole("button", {name: "Sign Up"})
+
+      await userEvent.click(button);
+
+      expect(button).toBeEnabled()
+    })
   })
 
 })
