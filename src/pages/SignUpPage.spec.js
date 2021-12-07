@@ -1,7 +1,8 @@
 import "@testing-library/jest-dom"
 import { render, screen } from "@testing-library/vue";
 import userEvent from "@testing-library/user-event"
-import axios from 'axios'
+// import axios from 'axios'
+import "whatwg-fetch"
 
 import SignUpPage from "./SignUpPage.vue";
 
@@ -104,7 +105,8 @@ describe("SignUp Page", () => {
       const button = screen.queryByRole("button", {name: "Sign Up"})
 
       const mockFn = jest.fn()
-      axios.post = mockFn
+      // axios.post = mockFn // When using axios in lecture 10. At lecture 11, we use fetch.
+      window.fetch = mockFn // Starting at lecture 11.
       
       await userEvent.click(button);
 
@@ -112,7 +114,11 @@ describe("SignUp Page", () => {
        * See lecture "10. Making API Request" for the explanation on mocking axios call. 
       */
       const firstCall = mockFn.mock.calls[0]
-      const body = firstCall[1] // Here we take index "[1]" to get the body, because index "[0]" would be the url.
+      // const body = firstCall[1] // Here we take index "[1]" to get the body, because index "[0]" would be the url.
+      /** The line above is working with the "axios" way. 
+       * The line below is for the "fetch" way. 
+      */
+      const body = JSON.parse(firstCall[1].body) // Here we take index "[1]" to get the body, because index "[0]" would be the url.
 
       expect(body).toEqual({
         username: 'user1',
