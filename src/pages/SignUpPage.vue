@@ -1,21 +1,55 @@
 <template>
-  <form>
-    <h1>Sign Up</h1>
+  <div class="col-lg-6 offset-lg-3 col-md-8 offset-md-2">
+    <form class="card mt-5">
+      <div class="card-header">
+        <h1 class="text-center">Sign Up</h1>
+      </div>
 
-    <label for="username">Username</label>
-    <input id="username" v-model="username" />
+      <div class="card-body">
+        <div class="mb-3">
+          <label for="username" class="form-label">Username</label>
+          <input id="username" v-model="username" class="form-control" />
+        </div>
 
-    <label for="email">Email</label>
-    <input id="email" v-model="email" />
+        <div class="mb-3">
+          <label for="email" class="form-label">Email</label>
+          <input id="email" v-model="email" class="form-control" />
+        </div>
 
-    <label for="password">Password</label>
-    <input id="password" type="password" v-model="password" />
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input
+            id="password"
+            type="password"
+            v-model="password"
+            class="form-control"
+          />
+        </div>
 
-    <label for="password-repeat">Password Repeat</label>
-    <input id="password-repeat" type="password" v-model="passwordRepeat" />
+        <div class="mb-3">
+          <label for="password-repeat" class="form-label"
+            >Password Repeat</label
+          >
+          <input
+            id="password-repeat"
+            type="password"
+            v-model="passwordRepeat"
+            class="form-control"
+          />
+        </div>
 
-    <button :disabled="isDisabled" @click.prevent="submit">Sign Up</button>
-  </form>
+        <div class="text-center">
+          <button
+            :disabled="isDisabled"
+            @click.prevent="submit"
+            class="btn btn-primary"
+          >
+            Sign Up
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
 </template>
 
 <script>
@@ -59,5 +93,3 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
-</style>
