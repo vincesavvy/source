@@ -1,7 +1,7 @@
 import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/vue";
 import userEvent from "@testing-library/user-event";
-import "whatwg-fetch" // Need this if using "fetch" in the component. Don't need it if using axios.
+// import "whatwg-fetch" // Need this if using "fetch" in the component. Don't need it if using axios.
 import { setupServer } from "msw/node";
 import { rest } from "msw";
 import SignUpPage from "./SignUpPage.vue";
