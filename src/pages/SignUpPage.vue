@@ -40,10 +40,12 @@
 
         <div class="text-center">
           <button
-            :disabled="isDisabled"
+            :disabled="isDisabled || disabled"
             @click.prevent="submit"
             class="btn btn-primary"
           >
+          <span v-if="apiProgress" class="spinner-border spinner-border-sm" role="status" ></span> 
+          <!-- This "span" used to have the property: "aria-hidden='true'", but this renders it "hidden" to the DOM. So, a test that would query for its "role" of "status" would fail... So we removed the "aria-hidden='true'". -->
             Sign Up
           </button>
         </div>
@@ -59,10 +61,12 @@ export default {
 
   data() {
     return {
+      disabled: false,
       username: "",
       email: "",
       password: "",
       passwordRepeat: "",
+      apiProgress: false
     };
   },
 
@@ -83,6 +87,8 @@ export default {
 
   methods: {
     submit() {
+      this.disabled = true
+      this.apiProgress = true
       axios.post("/api/1.0/users", {
         username: this.username,
         email: this.email,
