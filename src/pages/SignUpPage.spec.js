@@ -73,14 +73,23 @@ describe("SignUp Page", () => {
     });
   });
 
-  describe("Interactions", () => {
-    it("Enables the button when the password and password repeat fields have the same value.", async () => {
+  describe("Interactions", async () => {
+
+    const setup = async () => {
       render(SignUpPage);
+      const usernameInput = screen.queryByLabelText("Username");
+      const emailInput = screen.queryByLabelText("Email");
       const passwordInput = screen.queryByLabelText("Password");
       const passwordRepeatInput = screen.queryByLabelText("Password Repeat");
 
-      await userEvent.type(passwordInput, "P4ssword"); // The "type" action is asynchronus, so this test needs to be async.
+      await userEvent.type(usernameInput, "user1"); // The "type" action is asynchronus, so this test needs to be async.
+      await userEvent.type(emailInput, "user1@mail.com");
+      await userEvent.type(passwordInput, "P4ssword");
       await userEvent.type(passwordRepeatInput, "P4ssword");
+    }
+
+    it("Enables the button when the password and password repeat fields have the same value.", async () => {
+      await setup()
 
       const button = screen.queryByRole("button", { name: "Sign Up" });
 
@@ -99,16 +108,7 @@ describe("SignUp Page", () => {
 
       mockServer.listen();
 
-      render(SignUpPage);
-      const usernameInput = screen.queryByLabelText("Username");
-      const emailInput = screen.queryByLabelText("Email");
-      const passwordInput = screen.queryByLabelText("Password");
-      const passwordRepeatInput = screen.queryByLabelText("Password Repeat");
-
-      await userEvent.type(usernameInput, "user1"); // The "type" action is asynchronus, so this test needs to be async.
-      await userEvent.type(emailInput, "user1@mail.com");
-      await userEvent.type(passwordInput, "P4ssword");
-      await userEvent.type(passwordRepeatInput, "P4ssword");
+      await setup()
 
       const button = screen.queryByRole("button", { name: "Sign Up" });
 
@@ -125,5 +125,59 @@ describe("SignUp Page", () => {
         password: "P4ssword",
       });
     });
+
+    it("Does not allow clicking on the submit button while there is an ongoing api call.", async () => {
+      // Mock the server to handle the request
+      let counter = 0
+      const mockServer = setupServer(
+        rest.post("/api/1.0/users", (req, res, context) => {
+          counter += 1
+          return res(context.status(200));
+        })
+      );
+      mockServer.listen();
+
+      await setup()
+
+      const button = screen.queryByRole("button", { name: "Sign Up" });
+
+      // User Actions
+      await userEvent.click(button);
+
+      await userEvent.click(button);
+
+      await mockServer.close()
+
+      expect(counter).toBe(1);
+    });
+
+    it("Displays the spinner while api request is in progress.", async () => {
+      const mockServer = setupServer(
+        rest.post("/api/1.0/users", (req, res, context) => {
+          return res(context.status(200));
+        })
+      );
+      mockServer.listen();
+
+      await setup()
+
+      const button = screen.queryByRole("button", { name: "Sign Up" });
+
+      // User Actions
+      await userEvent.click(button);
+
+      const spinner = screen.queryByRole("status")
+
+      expect(spinner).toBeInTheDocument()
+    });
+
+    it("Does not display spinner when there is no API request.", async () => {
+      await setup()
+
+      const spinner = screen.queryByRole("status")
+
+      expect(spinner).not.toBeInTheDocument()
+    })
+
   });
 });
