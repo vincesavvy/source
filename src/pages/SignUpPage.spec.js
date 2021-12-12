@@ -179,5 +179,37 @@ describe("SignUp Page", () => {
       expect(spinner).not.toBeInTheDocument()
     })
 
+    it("Displays account activation information after successful sign up request.", async () => {
+      const mockServer = setupServer(
+        rest.post("/api/1.0/users", (req, res, context) => {
+          return res(context.status(200));
+        })
+      );
+      mockServer.listen();
+
+      await setup()
+
+      const button = screen.queryByRole("button", { name: "Sign Up" });
+
+      // User Actions
+      await userEvent.click(button);
+      await mockServer.close()
+
+      // The method "findByText" waits for the test to appear.
+      // The method "queryByText" does not wait, it immediately querying the element. If it cannot find it, returns null.
+
+      const text = await screen.findByText("Please check your email to activate your account.")
+
+      expect(text).toBeInTheDocument()
+    });
+
+    it("Does not display account activation message before sign up request.", async () => {
+      await setup()
+
+      const text = screen.queryByText("Please check your email to activate your account.")
+
+      expect(text).not.toBeInTheDocument()
+    })
+
   });
 });

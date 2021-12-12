@@ -51,6 +51,8 @@
         </div>
       </div>
     </form>
+
+    <div class="alert alert-success">Please check your email to activate your account.</div>
   </div>
 </template>
 
