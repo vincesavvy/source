@@ -1,6 +1,6 @@
 <template>
   <div class="col-lg-6 offset-lg-3 col-md-8 offset-md-2">
-    <form class="card mt-5">
+    <form v-if="!signUpSuccess" class="card mt-5" data-testid="form-sign-up">
       <div class="card-header">
         <h1 class="text-center">Sign Up</h1>
       </div>
@@ -44,13 +44,21 @@
             @click.prevent="submit"
             class="btn btn-primary"
           >
-          <span v-if="apiProgress" class="spinner-border spinner-border-sm" role="status" ></span> 
-          <!-- This "span" used to have the property: "aria-hidden='true'", but this renders it "hidden" to the DOM. So, a test that would query for its "role" of "status" would fail... So we removed the "aria-hidden='true'". -->
+            <span
+              v-if="apiProgress"
+              class="spinner-border spinner-border-sm"
+              role="status"
+            ></span>
+            <!-- This "span" used to have the property: "aria-hidden='true'", but this renders it "hidden" to the DOM. So, a test that would query for its "role" of "status" would fail... So we removed the "aria-hidden='true'". -->
             Sign Up
           </button>
         </div>
       </div>
     </form>
+
+    <div v-else class="alert alert-success mt-3">
+      Please check your email to activate your account.
+    </div>
   </div>
 </template>
 
@@ -66,7 +74,8 @@ export default {
       email: "",
       password: "",
       passwordRepeat: "",
-      apiProgress: false
+      apiProgress: false,
+      signUpSuccess: false,
     };
   },
 
@@ -87,13 +96,20 @@ export default {
 
   methods: {
     submit() {
-      this.disabled = true
-      this.apiProgress = true
-      axios.post("/api/1.0/users", {
-        username: this.username,
-        email: this.email,
-        password: this.password,
-      });
+      this.disabled = true;
+      this.apiProgress = true;
+      axios
+        .post("/api/1.0/users", {
+          username: this.username,
+          email: this.email,
+          password: this.password,
+        })
+        .then(() => {
+          this.signUpSuccess = true;
+        })
+        .catch(() => {
+          
+        })
     },
   },
 };
