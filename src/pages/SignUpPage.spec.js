@@ -1,10 +1,12 @@
 import "@testing-library/jest-dom";
-import { render, screen } from "@testing-library/vue";
+import { render, screen, waitFor } from "@testing-library/vue";
 import userEvent from "@testing-library/user-event";
-// import "whatwg-fetch" // Need this if using "fetch" in the component. Don't need it if using axios.
 import { setupServer } from "msw/node";
 import { rest } from "msw";
 import SignUpPage from "./SignUpPage.vue";
+
+// The method "findByText" waits for the test to appear.
+// The method "queryByText" does not wait, it immediately querying the element. If it cannot find it, returns null.
 
 describe("SignUp Page", () => {
   describe("layout", () => {
@@ -74,7 +76,6 @@ describe("SignUp Page", () => {
   });
 
   describe("Interactions", async () => {
-
     const setup = async () => {
       render(SignUpPage);
       const usernameInput = screen.queryByLabelText("Username");
@@ -86,10 +87,10 @@ describe("SignUp Page", () => {
       await userEvent.type(emailInput, "user1@mail.com");
       await userEvent.type(passwordInput, "P4ssword");
       await userEvent.type(passwordRepeatInput, "P4ssword");
-    }
+    };
 
     it("Enables the button when the password and password repeat fields have the same value.", async () => {
-      await setup()
+      await setup();
 
       const button = screen.queryByRole("button", { name: "Sign Up" });
 
@@ -101,14 +102,14 @@ describe("SignUp Page", () => {
       let requestBody;
       const mockServer = setupServer(
         rest.post("/api/1.0/users", (req, res, context) => {
-          requestBody = req.body
+          requestBody = req.body;
           return res(context.status(200));
         })
       );
 
       mockServer.listen();
 
-      await setup()
+      await setup();
 
       const button = screen.queryByRole("button", { name: "Sign Up" });
 
@@ -117,7 +118,7 @@ describe("SignUp Page", () => {
       // NOTE: on next line.
       // The assignment of "requestBody" is done asynchronously after the button is clicked.
       // So we await the mock server to close, thus doing the variable assignment, and then we can use it.
-      await mockServer.close()
+      await mockServer.close();
 
       expect(requestBody).toEqual({
         username: "user1",
@@ -128,16 +129,16 @@ describe("SignUp Page", () => {
 
     it("Does not allow clicking on the submit button while there is an ongoing api call.", async () => {
       // Mock the server to handle the request
-      let counter = 0
+      let counter = 0;
       const mockServer = setupServer(
         rest.post("/api/1.0/users", (req, res, context) => {
-          counter += 1
+          counter += 1;
           return res(context.status(200));
         })
       );
       mockServer.listen();
 
-      await setup()
+      await setup();
 
       const button = screen.queryByRole("button", { name: "Sign Up" });
 
@@ -146,7 +147,7 @@ describe("SignUp Page", () => {
 
       await userEvent.click(button);
 
-      await mockServer.close()
+      await mockServer.close();
 
       expect(counter).toBe(1);
     });
@@ -159,25 +160,25 @@ describe("SignUp Page", () => {
       );
       mockServer.listen();
 
-      await setup()
+      await setup();
 
       const button = screen.queryByRole("button", { name: "Sign Up" });
 
       // User Actions
       await userEvent.click(button);
 
-      const spinner = screen.queryByRole("status")
+      const spinner = screen.queryByRole("status");
 
-      expect(spinner).toBeInTheDocument()
+      expect(spinner).toBeInTheDocument();
     });
 
     it("Does not display spinner when there is no API request.", async () => {
-      await setup()
+      await setup();
 
-      const spinner = screen.queryByRole("status")
+      const spinner = screen.queryByRole("status");
 
-      expect(spinner).not.toBeInTheDocument()
-    })
+      expect(spinner).not.toBeInTheDocument();
+    });
 
     it("Displays account activation information after successful sign up request.", async () => {
       const mockServer = setupServer(
@@ -187,29 +188,82 @@ describe("SignUp Page", () => {
       );
       mockServer.listen();
 
-      await setup()
+      await setup();
 
       const button = screen.queryByRole("button", { name: "Sign Up" });
 
       // User Actions
       await userEvent.click(button);
-      await mockServer.close()
+      await mockServer.close();
 
       // The method "findByText" waits for the test to appear.
       // The method "queryByText" does not wait, it immediately querying the element. If it cannot find it, returns null.
 
-      const text = await screen.findByText("Please check your email to activate your account.")
+      const text = await screen.findByText(
+        "Please check your email to activate your account."
+      );
 
-      expect(text).toBeInTheDocument()
+      expect(text).toBeInTheDocument();
     });
 
     it("Does not display account activation message before sign up request.", async () => {
-      await setup()
+      await setup();
 
-      const text = screen.queryByText("Please check your email to activate your account.")
+      const text = screen.queryByText(
+        "Please check your email to activate your account."
+      );
 
-      expect(text).not.toBeInTheDocument()
-    })
+      expect(text).not.toBeInTheDocument();
+    });
+
+    it("Does NOT display account activation information after failing sign up request.", async () => {
+      const mockServer = setupServer(
+        rest.post("/api/1.0/users", (req, res, context) => {
+          return res(context.status(400));
+        })
+      );
+      mockServer.listen();
+
+      await setup();
+
+      const button = screen.queryByRole("button", { name: "Sign Up" });
+
+      // User Actions
+      await userEvent.click(button);
+      await mockServer.close();
+
+      const text = await screen.queryByText(
+        "Please check your email to activate your account."
+      );
+
+      expect(text).not.toBeInTheDocument();
+    });
+
+    it("Hides sign up form after successful sign up request.", async () => {
+      const mockServer = setupServer(
+        rest.post("/api/1.0/users", (req, res, context) => {
+          return res(context.status(200));
+        })
+      );
+      mockServer.listen();
+
+      await setup();
+
+      const button = screen.queryByRole("button", { name: "Sign Up" });
+
+      const form = screen.queryByTestId("form-sign-up");
+
+      // User Actions
+      await userEvent.click(button);
+      await mockServer.close();
+      await waitFor(() => {
+        expect(form).not.toBeInTheDocument()
+      })
+
+      /* IMPORTANT:
+      * As is, this test will fail, and it's not obvious why... the reason has to do with the submit method in the frontend. At this time (lecture 15, at 12 min), we are only handling the success case with the "then", which only triggers with a "200" code. But here we want to catch the "400" which is returned as an "error", this is handled with "catch". For now (lecture 15, at 12 min), simply having the "catch" block empty is enough.
+      */
+    });
 
   });
 });

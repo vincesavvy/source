@@ -2,7 +2,7 @@ import "@testing-library/jest-dom"
 import { render, screen } from "@testing-library/vue";
 import userEvent from "@testing-library/user-event"
 // import axios from 'axios'
-import "whatwg-fetch" // This was uninstalled.
+import "whatwg-fetch" // This was uninstalled. // Need this if using "fetch" in the component. Don't need it if using axios.
 
 import SignUpPage from "./SignUpPage.vue";
 
