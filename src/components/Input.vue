@@ -4,11 +4,13 @@
     <input
       :id="id"
       class="form-control"
+      :class="{'is-invalid': help}"
       :value="modelValue"
       @input="$emit('update:modelValue', $event.target.value)"
     />
+    <!-- NOTE: this is a way to have multiple classes to one single tag. One default and one bound. The bound one have an object that applies a class if the value is true. -->
     
-    <span>{{ help }}</span>
+    <span class="invalid-feedback">{{ help }}</span>
   </div>
 </template>
 
@@ -21,7 +23,7 @@ export default {
     id: String,
     help: String,
     modelValue: String, // Relating to v-model on parent component.
-  }
+  },
 };
 </script>
 
