@@ -13,13 +13,6 @@
           :help="errors.username"
           v-model="username"
         />
-        <!-- NOTE: We could have multiple v-models, like this: v-model:input-one="username" v-model:input-two="identifier"... and in the Input component, we would only need to reflect the "emits" array and their relevent ":value" and such... -->
-
-        <!-- NOTE: <div class="mb-3">
-          <label for="username" class="form-label">Username</label>
-          <input id="username" v-model="username" class="form-control" />
-          <span>{{errors.username}}</span>
-        </div> -->
 
         <div class="mb-3">
           <label for="email" class="form-label">Email</label>
