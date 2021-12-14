@@ -6,7 +6,7 @@
       </div>
 
       <div class="card-body">
-        <Input id="username" label="Username" :help="errors.username" />
+        <Input id="username" label="Username" :help="errors.username" :onChange="onChangeUsername"/>
         <!-- NOTE: <div class="mb-3">
           <label for="username" class="form-label">Username</label>
           <input id="username" v-model="username" class="form-control" />
@@ -121,6 +121,10 @@ export default {
           this.apiProgress = false
         });
     },
+
+    onChangeUsername(event){
+      this.username = event.target.value
+    }
   },
 };
 </script>
