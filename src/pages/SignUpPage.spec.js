@@ -10,7 +10,6 @@ import SignUpPage from "./SignUpPage.vue";
 
 describe("SignUp Page", () => {
   describe("layout", () => {
-
     //1
     it("Has 'Sign Up' heading as h1 present in the document.", () => {
       render(SignUpPage);
@@ -85,8 +84,7 @@ describe("SignUp Page", () => {
   });
 
   describe("Interactions", async () => {
-
-    let button
+    let button;
 
     const setup = async () => {
       render(SignUpPage);
@@ -95,7 +93,7 @@ describe("SignUp Page", () => {
       const passwordInput = screen.queryByLabelText("Password");
       const passwordRepeatInput = screen.queryByLabelText("Password Repeat");
 
-      button = screen.queryByRole("button", {name: "Sign Up"})
+      button = screen.queryByRole("button", { name: "Sign Up" });
 
       await userEvent.type(usernameInput, "user1"); // The "type" action is asynchronus, so this test needs to be async.
       await userEvent.type(emailInput, "user1@mail.com");
@@ -119,9 +117,9 @@ describe("SignUp Page", () => {
     });
 
     beforeEach(() => {
-      counter = 0
-      mockServer.resetHandlers()
-    })
+      counter = 0;
+      mockServer.resetHandlers();
+    });
 
     afterAll(() => {
       // NOTE:
@@ -222,11 +220,12 @@ describe("SignUp Page", () => {
 
     //17
     it("Does NOT display account activation information after failing sign up request.", async () => {
-      mockServer.use( // With ".use" we can change the handlers.
+      mockServer.use(
+        // With ".use" we can change the handlers.
         rest.post("/api/1.0/users", (req, res, ctx) => {
-          return res(ctx.status(400))
+          return res(ctx.status(400));
         })
-      )
+      );
 
       await setup();
 
@@ -257,6 +256,34 @@ describe("SignUp Page", () => {
       /* IMPORTANT:
        * As is, this test will fail, and it's not obvious why... the reason has to do with the submit method in the frontend. At this time (lecture 15, at 12 min), we are only handling the success case with the "then", which only triggers with a "200" code. But here we want to catch the "400" which is returned as an "error", this is handled with "catch". For now (lecture 15, at 12 min), simply having the "catch" block empty is enough.
        */
+    });
+
+    /**
+     * VALIDATION
+     */
+
+    //19
+    it("Displays validation message for username.", async () => {
+      mockServer.use(
+        rest.post("/api/1.0/users", (req, res, ctx) => {
+          return res(ctx.status(400), ctx.json({
+            validationErrors : {
+              username : "Username cannot be null"
+            }
+          }));
+        })
+      );
+
+      await setup();
+
+      // User Actions
+      await userEvent.click(button);
+
+      const text = await screen.findByText(
+        "Username cannot be null"
+      );
+
+      expect(text).toBeInTheDocument();
     });
   });
 });
