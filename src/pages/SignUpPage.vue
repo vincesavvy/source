@@ -11,8 +11,9 @@
           id="username"
           label="Username"
           :help="errors.username"
-          @custom="onChangeUsername"
+          v-model:input-one="username"
         />
+        <!-- NOTE: We could have multiple v-models, like this: v-model:input-one="username" v-model:input-two="identifier"... and in the Input component, we would only need to reflect the "emits" array and their relevent ":value" and such... -->
 
         <!-- NOTE: <div class="mb-3">
           <label for="username" class="form-label">Username</label>
@@ -127,10 +128,6 @@ export default {
           }
           this.apiProgress = false;
         });
-    },
-
-    onChangeUsername(value) {
-      this.username = value;
     },
   },
 };
