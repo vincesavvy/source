@@ -6,7 +6,14 @@
       </div>
 
       <div class="card-body">
-        <Input id="username" label="Username" :help="errors.username" :onChange="onChangeUsername"/>
+
+        <Input
+          id="username"
+          label="Username"
+          :help="errors.username"
+          @custom="onChangeUsername"
+        />
+
         <!-- NOTE: <div class="mb-3">
           <label for="username" class="form-label">Username</label>
           <input id="username" v-model="username" class="form-control" />
@@ -66,13 +73,13 @@
 
 <script>
 import axios from "axios";
-import Input from "../components/Input.vue"
+import Input from "../components/Input.vue";
 
 export default {
   name: "SignUpPage",
 
-  components:{
-    Input
+  components: {
+    Input,
   },
 
   data() {
@@ -116,15 +123,15 @@ export default {
         })
         .catch((error) => {
           if (error.response.status === 400) {
-            this.errors = error.response.data.validationErrors
+            this.errors = error.response.data.validationErrors;
           }
-          this.apiProgress = false
+          this.apiProgress = false;
         });
     },
 
-    onChangeUsername(event){
-      this.username = event.target.value
-    }
+    onChangeUsername(value) {
+      this.username = value;
+    },
   },
 };
 </script>
