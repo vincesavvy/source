@@ -6,11 +6,12 @@
       </div>
 
       <div class="card-body">
-        <div class="mb-3">
+        <Input id="username" label="Username" :help="errors.username" />
+        <!-- <div class="mb-3">
           <label for="username" class="form-label">Username</label>
           <input id="username" v-model="username" class="form-control" />
           <span>{{errors.username}}</span>
-        </div>
+        </div> -->
 
         <div class="mb-3">
           <label for="email" class="form-label">Email</label>
@@ -65,8 +66,14 @@
 
 <script>
 import axios from "axios";
+import Input from "../components/Input.vue"
+
 export default {
   name: "SignUpPage",
+
+  components:{
+    Input
+  },
 
   data() {
     return {
