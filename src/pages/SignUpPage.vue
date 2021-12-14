@@ -7,7 +7,7 @@
 
       <div class="card-body">
         <Input id="username" label="Username" :help="errors.username" />
-        <!-- <div class="mb-3">
+        <!-- NOTE: <div class="mb-3">
           <label for="username" class="form-label">Username</label>
           <input id="username" v-model="username" class="form-control" />
           <span>{{errors.username}}</span>
