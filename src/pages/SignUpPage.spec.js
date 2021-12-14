@@ -266,11 +266,14 @@ describe("SignUp Page", () => {
     it("Displays validation message for username.", async () => {
       mockServer.use(
         rest.post("/api/1.0/users", (req, res, ctx) => {
-          return res(ctx.status(400), ctx.json({
-            validationErrors : {
-              username : "Username cannot be null"
-            }
-          }));
+          return res(
+            ctx.status(400),
+            ctx.json({
+              validationErrors: {
+                username: "Username cannot be null",
+              },
+            })
+          );
         })
       );
 
@@ -279,11 +282,61 @@ describe("SignUp Page", () => {
       // User Actions
       await userEvent.click(button);
 
-      const text = await screen.findByText(
-        "Username cannot be null"
-      );
+      const text = await screen.findByText("Username cannot be null");
 
       expect(text).toBeInTheDocument();
+    });
+
+    //20
+    it("Hides spinner after error response received.", async () => {
+      mockServer.use(
+        rest.post("/api/1.0/users", (req, res, ctx) => {
+          return res(
+            ctx.status(400),
+            ctx.json({
+              validationErrors: {
+                username: "Username cannot be null",
+              },
+            })
+          );
+        })
+      );
+
+      await setup();
+
+      // User Actions
+      await userEvent.click(button);
+
+      await screen.findByText("Username cannot be null");
+
+      const spinner = screen.queryByRole("status");
+
+      expect(spinner).not.toBeInTheDocument();
+    });
+
+    //21
+    it("Enables the button after error response received.", async () => {
+      mockServer.use(
+        rest.post("/api/1.0/users", (req, res, ctx) => {
+          return res(
+            ctx.status(400),
+            ctx.json({
+              validationErrors: {
+                username: "Username cannot be null",
+              },
+            })
+          );
+        })
+      );
+
+      await setup();
+
+      // User Actions
+      await userEvent.click(button);
+
+      await screen.findByText("Username cannot be null");
+
+      expect(button).toBeEnabled();
     });
   });
 });
