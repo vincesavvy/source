@@ -11,7 +11,7 @@
           id="username"
           label="Username"
           :help="errors.username"
-          v-model:input-one="username"
+          v-model="username"
         />
         <!-- NOTE: We could have multiple v-models, like this: v-model:input-one="username" v-model:input-two="identifier"... and in the Input component, we would only need to reflect the "emits" array and their relevent ":value" and such... -->
 

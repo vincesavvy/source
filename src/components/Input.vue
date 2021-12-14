@@ -4,8 +4,8 @@
     <input
       :id="id"
       class="form-control"
-      :value="inputOne"
-      @input="$emit('update:inputOne', $event.target.value)"
+      :value="modelValue"
+      @input="$emit('update:modelValue', $event.target.value)"
     />
     
     <span>{{ help }}</span>
@@ -15,12 +15,12 @@
 <script>
 export default {
     // IMPORTANT: using this method, with "props : modelValue [and] emits: ["update:modelValue"] ", the vue devtools is now able to keep track of the v-model chnages!
-  emits: ["update:inputOne"],
+  emits: ["update:modelValue"],
   props: {
     label: String,
     id: String,
     help: String,
-    inputOne: String, // Relating to v-model on parent component.
+    modelValue: String, // Relating to v-model on parent component.
   }
 };
 </script>
