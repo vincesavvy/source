@@ -2,13 +2,13 @@
   <div class="col-lg-6 offset-lg-3 col-md-8 offset-md-2">
     <form v-if="!signUpSuccess" class="card mt-5" data-testid="form-sign-up">
       <div class="card-header">
-        <h1 class="text-center">Sign Up</h1>
+        <h1 class="text-center">{{ $t("signUp") }}</h1>
       </div>
 
       <div class="card-body">
         <Input
           id="username"
-          label="Username"
+          :label="$t('username')"
           :help="errors.username"
           v-model="username"
         />
@@ -18,7 +18,7 @@
         <Input
           type="password"
           id="password"
-          label="Password"
+          :label="$t('password')"
           :help="errors.password"
           v-model="password"
         />
@@ -26,7 +26,7 @@
         <Input
           type="password"
           id="password-repeat"
-          label="Password Repeat"
+          :label="$t('passwordRepeat')"
           :help="hasPasswordMismatch ? 'Password mismatch' : ''"
           v-model="passwordRepeat"
         />
@@ -43,7 +43,7 @@
               role="status"
             ></span>
             <!-- This "span" used to have the property: "aria-hidden='true'", but this renders it "hidden" to the DOM. So, a test that would query for its "role" of "status" would fail... So we removed the "aria-hidden='true'". -->
-            Sign Up
+            {{ $t("signUp") }}
           </button>
         </div>
       </div>
@@ -80,14 +80,14 @@ export default {
 
   watch: {
     username() {
-      delete this.errors.username
+      delete this.errors.username;
     },
     email() {
-      delete this.errors.email
+      delete this.errors.email;
     },
     password() {
-      delete this.errors.password
-    }
+      delete this.errors.password;
+    },
   },
 
   computed: {
