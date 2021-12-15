@@ -5,6 +5,8 @@ import { setupServer } from "msw/node";
 import { rest } from "msw";
 import SignUpPage from "./SignUpPage.vue";
 import i18n from "../locales/i18n.js";
+import en from "../locales/en.json";
+import fr from "../locales/fr.json";
 
 // The method "findByText" waits for the test to appear.
 // The method "queryByText" does not wait, it immediately querying the element. If it cannot find it, returns null.
@@ -98,8 +100,8 @@ describe("SignUp Page", () => {
     const interactionsSetup = async () => {
       render(SignUpPage, {
         global: {
-          plugins: [i18n]
-        }
+          plugins: [i18n],
+        },
       });
       usernameInput = screen.queryByLabelText("Username");
       const emailInput = screen.queryByLabelText("Email");
@@ -375,5 +377,75 @@ describe("SignUp Page", () => {
         expect(text).not.toBeInTheDocument();
       }
     );
+  });
+
+  describe("Internationalization", () => {
+    const internationalizationSetup = () => {
+      render(SignUpPage, {
+        global: {
+          plugins: [i18n],
+        },
+      });
+    };
+
+    //24
+    it("Initially displays all text in English.", async () => {
+      internationalizationSetup();
+
+      expect(
+        screen.queryByRole("heading", { name: en.signUp })
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: en.signUp })
+      ).toBeInTheDocument();
+      expect(screen.queryByLabelText(en.username)).toBeInTheDocument();
+      expect(screen.queryByLabelText(en.email)).toBeInTheDocument();
+      expect(screen.queryByLabelText(en.password)).toBeInTheDocument();
+      expect(screen.queryByLabelText(en.passwordRepeat)).toBeInTheDocument();
+    });
+
+    //25
+    it("Displays all text in french after selecting that language.", async () => {
+      internationalizationSetup();
+
+      const french = screen.queryByTitle("Français");
+
+      await userEvent.click(french);
+
+      expect(
+        screen.queryByRole("heading", { name: fr.signUp })
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: fr.signUp })
+      ).toBeInTheDocument();
+      expect(screen.queryByLabelText(fr.username)).toBeInTheDocument();
+      expect(screen.queryByLabelText(fr.email)).toBeInTheDocument();
+      expect(screen.queryByLabelText(fr.password)).toBeInTheDocument();
+      expect(screen.queryByLabelText(fr.passwordRepeat)).toBeInTheDocument();
+    });
+
+    //26
+    it("Displays all text in english after page is translated to english.", async () => {
+      internationalizationSetup();
+
+      const french = screen.queryByTitle("Français");
+
+      await userEvent.click(french);
+
+      const english = screen.queryByTitle("English");
+
+      await userEvent.click(english);
+
+      expect(
+        screen.queryByRole("heading", { name: en.signUp })
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: en.signUp })
+      ).toBeInTheDocument();
+      expect(screen.queryByLabelText(en.username)).toBeInTheDocument();
+      expect(screen.queryByLabelText(en.email)).toBeInTheDocument();
+      expect(screen.queryByLabelText(en.password)).toBeInTheDocument();
+      expect(screen.queryByLabelText(en.passwordRepeat)).toBeInTheDocument();
+    });
   });
 });

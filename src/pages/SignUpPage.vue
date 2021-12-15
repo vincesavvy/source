@@ -13,7 +13,12 @@
           v-model="username"
         />
 
-        <Input id="email" label="Email" :help="errors.email" v-model="email" />
+        <Input
+          id="email"
+          :label="$t('email')"
+          :help="errors.email"
+          v-model="email"
+        />
 
         <Input
           type="password"
@@ -52,6 +57,25 @@
     <div v-else class="alert alert-success mt-3">
       Please check your email to activate your account.
     </div>
+  </div>
+  <div class="col-lg-6 offset-lg-3 col-md-8 offset-md-2">
+    <img
+      src="https://flagcdn.com/w20/us.png"
+      srcset="https://flagcdn.com/w40/us.png 2x"
+      width="24"
+      height="16"
+      alt="USA"
+      title="English"
+      @click="$i18n.locale = 'en'"
+    />
+    <img
+      src="https://flagcdn.com/w20/fr.png"
+      srcset="https://flagcdn.com/w40/fr.png 2x"
+      width="24"
+      alt="France"
+      title="Français"
+      @click="$i18n.locale = 'fr'"
+    />
   </div>
 </template>
 
@@ -130,4 +154,11 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+img {
+  cursor: pointer;
+  margin-right: 0.5rem;
+}
+</style>
 
