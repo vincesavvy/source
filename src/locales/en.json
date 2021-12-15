@@ -3,5 +3,7 @@
     "username": "Username",
     "email": "Email",
     "password": "Password",
-    "passwordRepeat": "Password Repeat"
+    "passwordRepeat": "Password Repeat",
+    "passwordMismatch": "Password mismatch",
+    "acountActivationNotification": "Please check your email to activate your account."
   }

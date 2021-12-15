@@ -1,12 +1,43 @@
 import "@testing-library/jest-dom";
-import { render, screen, waitFor } from "@testing-library/vue";
+import { queryByText, render, screen, waitFor } from "@testing-library/vue"; // eslint-disable-line
 import userEvent from "@testing-library/user-event";
 import { setupServer } from "msw/node";
 import { rest } from "msw";
 import SignUpPage from "./SignUpPage.vue";
+import LanguageSelector from "../components/LanguageSelector.vue";
 import i18n from "../locales/i18n.js";
 import en from "../locales/en.json";
 import fr from "../locales/fr.json";
+
+// Mock the server to handle the request
+let requestBody;
+let counter = 0;
+let acceptLanguageHeader;
+const mockServer = setupServer(
+  rest.post("/api/1.0/users", (req, res, context) => {
+    requestBody = req.body;
+    counter += 1;
+    acceptLanguageHeader = req.headers.get("Accept-Language");
+    return res(context.status(200));
+  })
+);
+
+beforeAll(() => {
+  mockServer.listen(); // This means: "before all" tests in this "describe" block, start and listen on the mock server.
+});
+
+beforeEach(() => {
+  counter = 0;
+  mockServer.resetHandlers();
+});
+
+afterAll(() => {
+  // NOTE:
+  // The assignment of "requestBody" is done asynchronously after a button is clicked in the next tests.
+  // So we used to "await" the mock server to close, thus doing the variable assignment, so that then we can use it.
+  // In reality, now, we will wait for the frontend to show the "await screen.findByText("Please check your email to activate your account.");"
+  mockServer.close();
+});
 
 // The method "findByText" waits for the test to appear.
 // The method "queryByText" does not wait, it immediately querying the element. If it cannot find it, returns null.
@@ -115,34 +146,6 @@ describe("SignUp Page", () => {
       await userEvent.type(passwordInput, "P4ssword");
       await userEvent.type(passwordRepeatInput, "P4ssword");
     };
-
-    // Mock the server to handle the request
-    let requestBody;
-    let counter = 0;
-    const mockServer = setupServer(
-      rest.post("/api/1.0/users", (req, res, context) => {
-        requestBody = req.body;
-        counter += 1;
-        return res(context.status(200));
-      })
-    );
-
-    beforeAll(() => {
-      mockServer.listen(); // This means: "before all" tests in this "describe" block, start and listen on the mock server.
-    });
-
-    beforeEach(() => {
-      counter = 0;
-      mockServer.resetHandlers();
-    });
-
-    afterAll(() => {
-      // NOTE:
-      // The assignment of "requestBody" is done asynchronously after a button is clicked in the next tests.
-      // So we used to "await" the mock server to close, thus doing the variable assignment, so that then we can use it.
-      // In reality, now, we will wait for the frontend to show the "await screen.findByText("Please check your email to activate your account.");"
-      mockServer.close();
-    });
 
     const generateValidationError = (field, message) => {
       return rest.post("/api/1.0/users", (req, res, ctx) => {
@@ -380,13 +383,43 @@ describe("SignUp Page", () => {
   });
 
   describe("Internationalization", () => {
+    let frenchLanguage,
+      englishLanguage,
+      username,
+      email,
+      password,
+      passwordRepeat,
+      button;
+
     const internationalizationSetup = () => {
-      render(SignUpPage, {
+      const app = {
+        components: {
+          SignUpPage,
+          LanguageSelector,
+        },
+        template: `
+        <SignUpPage/>
+        <LanguageSelector/>
+        `,
+      };
+      render(app, {
         global: {
           plugins: [i18n],
         },
       });
+
+      frenchLanguage = screen.queryByTitle("Français");
+      englishLanguage = screen.queryByTitle("English");
+      username = screen.queryByLabelText(en.username);
+      email = screen.queryByLabelText(en.email);
+      password = screen.queryByLabelText(en.password);
+      passwordRepeat = screen.queryByLabelText(en.passwordRepeat);
+      button = screen.queryByRole("button", { name: en.signUp });
     };
+
+    afterEach(() => {
+      i18n.global.locale = "en";
+    });
 
     //24
     it("Initially displays all text in English.", async () => {
@@ -408,9 +441,7 @@ describe("SignUp Page", () => {
     it("Displays all text in french after selecting that language.", async () => {
       internationalizationSetup();
 
-      const french = screen.queryByTitle("Français");
-
-      await userEvent.click(french);
+      await userEvent.click(frenchLanguage);
 
       expect(
         screen.queryByRole("heading", { name: fr.signUp })
@@ -428,13 +459,9 @@ describe("SignUp Page", () => {
     it("Displays all text in english after page is translated to english.", async () => {
       internationalizationSetup();
 
-      const french = screen.queryByTitle("Français");
+      await userEvent.click(frenchLanguage);
 
-      await userEvent.click(french);
-
-      const english = screen.queryByTitle("English");
-
-      await userEvent.click(english);
+      await userEvent.click(englishLanguage);
 
       expect(
         screen.queryByRole("heading", { name: en.signUp })
@@ -446,6 +473,74 @@ describe("SignUp Page", () => {
       expect(screen.queryByLabelText(en.email)).toBeInTheDocument();
       expect(screen.queryByLabelText(en.password)).toBeInTheDocument();
       expect(screen.queryByLabelText(en.passwordRepeat)).toBeInTheDocument();
+    });
+
+    //27
+    it("displays password mismatch validation in french.", async () => {
+      internationalizationSetup();
+
+      await userEvent.click(frenchLanguage);
+      await userEvent.type(password, "P4ssword");
+      await userEvent.type(passwordRepeat, "N3wP4ss");
+
+      const validation = screen.queryByText(fr.passwordMismatch);
+
+      expect(validation).toBeInTheDocument();
+    });
+
+    //28
+    it("Sends accept-language having en locale to backend for sign up request", async () => {
+      internationalizationSetup();
+      await userEvent.type(username, "user1");
+      await userEvent.type(email, "user1@mail.com");
+      await userEvent.type(password, "P4ssword");
+      await userEvent.type(passwordRepeat, "P4ssword");
+
+      await userEvent.click(button);
+
+      await screen.findByText(
+        "Please check your email to activate your account."
+      );
+
+      expect(acceptLanguageHeader).toBe("en");
+    });
+
+    //29
+    it("Sends accept-language having en locale to backend for sign up request", async () => {
+      internationalizationSetup();
+
+      await userEvent.click(frenchLanguage);
+
+      await userEvent.type(username, "user1");
+      await userEvent.type(email, "user1@mail.com");
+      await userEvent.type(password, "P4ssword");
+      await userEvent.type(passwordRepeat, "P4ssword");
+
+      await userEvent.click(button);
+
+      await screen.findByText(fr.acountActivationNotification);
+
+      expect(acceptLanguageHeader).toBe("fr");
+    });
+
+    //30
+    it("Displays account activation information in french after selecting that language.", async () => {
+      internationalizationSetup();
+
+      await userEvent.click(frenchLanguage);
+
+      await userEvent.type(username, "user1");
+      await userEvent.type(email, "user1@mail.com");
+      await userEvent.type(password, "P4ssword");
+      await userEvent.type(passwordRepeat, "P4ssword");
+
+      await userEvent.click(button);
+
+      const accountActivation = await screen.findByText(
+        fr.acountActivationNotification
+      );
+
+      expect(accountActivation).toBeInTheDocument();
     });
   });
 });
