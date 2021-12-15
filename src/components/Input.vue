@@ -2,6 +2,7 @@
   <div class="mb-3">
     <label :for="id" class="form-label">{{ label }}</label>
     <input
+    :type="type"
       :id="id"
       class="form-control"
       :class="{'is-invalid': help}"
@@ -10,7 +11,7 @@
     />
     <!-- NOTE: this is a way to have multiple classes to one single tag. One default and one bound. The bound one have an object that applies a class if the value is true. -->
     
-    <span class="invalid-feedback">{{ help }}</span>
+    <span v-if="help" class="invalid-feedback">{{ help }}</span>
   </div>
 </template>
 
@@ -23,6 +24,7 @@ export default {
     id: String,
     help: String,
     modelValue: String, // Relating to v-model on parent component.
+    type: String
   },
 };
 </script>

@@ -1,6 +1,8 @@
 import Input from "./Input.vue";
 import { render } from "@testing-library/vue";
 
+/**IMPORTANT: Would not do that in real life as we usually don't test implementation and style. */
+
 //1
 it("Has 'is-invalid' class for input when 'help' is set.", () => {
   const {container} = render(Input, { props: { help: "Error message" } });

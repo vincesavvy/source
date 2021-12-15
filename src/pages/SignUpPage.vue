@@ -6,7 +6,6 @@
       </div>
 
       <div class="card-body">
-
         <Input
           id="username"
           label="Username"
@@ -14,32 +13,23 @@
           v-model="username"
         />
 
-        <div class="mb-3">
-          <label for="email" class="form-label">Email</label>
-          <input id="email" v-model="email" class="form-control" />
-        </div>
+        <Input id="email" label="Email" :help="errors.email" v-model="email" />
 
-        <div class="mb-3">
-          <label for="password" class="form-label">Password</label>
-          <input
-            id="password"
-            type="password"
-            v-model="password"
-            class="form-control"
-          />
-        </div>
+        <Input
+          type="password"
+          id="password"
+          label="Password"
+          :help="errors.password"
+          v-model="password"
+        />
 
-        <div class="mb-3">
-          <label for="password-repeat" class="form-label"
-            >Password Repeat</label
-          >
-          <input
-            id="password-repeat"
-            type="password"
-            v-model="passwordRepeat"
-            class="form-control"
-          />
-        </div>
+        <Input
+          type="password"
+          id="password-repeat"
+          label="Password Repeat"
+          :help="hasPasswordMismatch ? 'Password mismatch' : ''"
+          v-model="passwordRepeat"
+        />
 
         <div class="text-center">
           <button
@@ -88,6 +78,18 @@ export default {
     };
   },
 
+  watch: {
+    username() {
+      delete this.errors.username
+    },
+    email() {
+      delete this.errors.email
+    },
+    password() {
+      delete this.errors.password
+    }
+  },
+
   computed: {
     isDisabled() {
       return this.password && this.passwordRepeat
@@ -100,6 +102,9 @@ export default {
        ** If it's true and they are not the same thing, return true => "isDisabled" returns true, button is disabled!
        ** If "password" and "passwordRepeat" don't have value: return true => "isDisabled" returns true, button is disabled!
        */
+    },
+    hasPasswordMismatch() {
+      return this.password !== this.passwordRepeat;
     },
   },
 
