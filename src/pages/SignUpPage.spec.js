@@ -83,7 +83,7 @@ describe("SignUp Page", () => {
     });
   });
 
-  describe("Interactions", async () => {
+  describe("Interactions", () => {
     let button;
 
     const setup = async () => {
