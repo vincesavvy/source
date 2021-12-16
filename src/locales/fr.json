@@ -1,0 +1,9 @@
+{
+    "signUp": "S'inscrire",
+    "username": "Nom d'utilisateur",
+    "email": "Courriel",
+    "password": "Mot de passe",
+    "passwordRepeat": "Confirmez votre mot de passe",
+    "passwordMismatch": "Le mot de passe ne correspond pas",
+    "acountActivationNotification": "Vérifiez votre courriel pour activer votre compte."
+  }

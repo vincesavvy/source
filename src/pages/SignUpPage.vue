@@ -2,23 +2,28 @@
   <div class="col-lg-6 offset-lg-3 col-md-8 offset-md-2">
     <form v-if="!signUpSuccess" class="card mt-5" data-testid="form-sign-up">
       <div class="card-header">
-        <h1 class="text-center">Sign Up</h1>
+        <h1 class="text-center">{{ $t("signUp") }}</h1>
       </div>
 
       <div class="card-body">
         <Input
           id="username"
-          label="Username"
+          :label="$t('username')"
           :help="errors.username"
           v-model="username"
         />
 
-        <Input id="email" label="Email" :help="errors.email" v-model="email" />
+        <Input
+          id="email"
+          :label="$t('email')"
+          :help="errors.email"
+          v-model="email"
+        />
 
         <Input
           type="password"
           id="password"
-          label="Password"
+          :label="$t('password')"
           :help="errors.password"
           v-model="password"
         />
@@ -26,8 +31,8 @@
         <Input
           type="password"
           id="password-repeat"
-          label="Password Repeat"
-          :help="hasPasswordMismatch ? 'Password mismatch' : ''"
+          :label="$t('passwordRepeat')"
+          :help="hasPasswordMismatch ? $t('passwordMismatch') : ''"
           v-model="passwordRepeat"
         />
 
@@ -43,20 +48,20 @@
               role="status"
             ></span>
             <!-- This "span" used to have the property: "aria-hidden='true'", but this renders it "hidden" to the DOM. So, a test that would query for its "role" of "status" would fail... So we removed the "aria-hidden='true'". -->
-            Sign Up
+            {{ $t("signUp") }}
           </button>
         </div>
       </div>
     </form>
 
     <div v-else class="alert alert-success mt-3">
-      Please check your email to activate your account.
+      {{ $t("acountActivationNotification") }}
     </div>
   </div>
 </template>
 
 <script>
-import axios from "axios";
+import { signUp } from "../api/apiCalls.js";
 import Input from "../components/Input.vue";
 
 export default {
@@ -80,14 +85,14 @@ export default {
 
   watch: {
     username() {
-      delete this.errors.username
+      delete this.errors.username;
     },
     email() {
-      delete this.errors.email
+      delete this.errors.email;
     },
     password() {
-      delete this.errors.password
-    }
+      delete this.errors.password;
+    },
   },
 
   computed: {
@@ -109,23 +114,22 @@ export default {
   },
 
   methods: {
-    submit() {
+    async submit() {
       this.apiProgress = true;
-      axios
-        .post("/api/1.0/users", {
+
+      try {
+        await signUp({
           username: this.username,
           email: this.email,
           password: this.password,
-        })
-        .then(() => {
-          this.signUpSuccess = true;
-        })
-        .catch((error) => {
-          if (error.response.status === 400) {
-            this.errors = error.response.data.validationErrors;
-          }
-          this.apiProgress = false;
         });
+        this.signUpSuccess = true;
+      } catch (error) {
+        if (error.response.status === 400) {
+          this.errors = error.response.data.validationErrors;
+        }
+        this.apiProgress = false;
+      }
     },
   },
 };

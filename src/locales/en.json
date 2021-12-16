@@ -1,0 +1,9 @@
+{
+    "signUp": "Sign Up",
+    "username": "Username",
+    "email": "Email",
+    "password": "Password",
+    "passwordRepeat": "Password Repeat",
+    "passwordMismatch": "Password mismatch",
+    "acountActivationNotification": "Please check your email to activate your account."
+  }
