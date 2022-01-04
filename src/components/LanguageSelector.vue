@@ -1,5 +1,6 @@
 <template>
-  <div class="col-lg-6 offset-lg-3 col-md-8 offset-md-2">
+  <!-- <div class="col-lg-6 offset-lg-3 col-md-8 offset-md-2"> -->
+  <div>
     <img
       src="https://flagcdn.com/w20/fr.png"
       srcset="https://flagcdn.com/w40/fr.png 2x"
@@ -23,6 +24,6 @@
 <style scoped>
 img {
   cursor: pointer;
-  margin-right: 0.5rem;
+  margin-right: 5px;
 }
 </style>

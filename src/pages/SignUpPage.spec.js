@@ -1,8 +1,8 @@
 import { queryByText, render, screen, waitFor } from "@testing-library/vue"; // eslint-disable-line
 import userEvent from "@testing-library/user-event";
+import SignUpPage from "./SignUpPage.vue";
 import { setupServer } from "msw/node";
 import { rest } from "msw";
-import SignUpPage from "./SignUpPage.vue";
 import LanguageSelector from "../components/LanguageSelector.vue";
 import i18n from "../locales/i18n.js";
 import en from "../locales/en.json";
