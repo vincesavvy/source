@@ -10,9 +10,14 @@ export const signUp = (body) => {
 };
 
 export const activate = (token) => {
-  return axios.post("/api/1.0/users/token/" + token)
-}
+  return axios.post("/api/1.0/users/token/" + token);
+};
 
-export const loadUsers = () => {
-  return axios.get("/api/1.0/users")
-}
+export const loadUsers = (page) => {
+  return axios.get("/api/1.0/users", {
+    params: {
+      page,
+      size: 3,
+    },
+  });
+};
