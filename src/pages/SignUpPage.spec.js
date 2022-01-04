@@ -1,9 +1,8 @@
-import "@testing-library/jest-dom";
 import { queryByText, render, screen, waitFor } from "@testing-library/vue"; // eslint-disable-line
 import userEvent from "@testing-library/user-event";
+import SignUpPage from "./SignUpPage.vue";
 import { setupServer } from "msw/node";
 import { rest } from "msw";
-import SignUpPage from "./SignUpPage.vue";
 import LanguageSelector from "../components/LanguageSelector.vue";
 import i18n from "../locales/i18n.js";
 import en from "../locales/en.json";
@@ -417,9 +416,10 @@ describe("SignUp Page", () => {
       button = screen.queryByRole("button", { name: en.signUp });
     };
 
-    afterEach(() => {
-      i18n.global.locale = "en";
-    });
+    // IMPORTANT: these next lines are now moved in the setupTest.js file in the test folder.
+    // afterEach(() => {
+    //   i18n.global.locale = "en";
+    // });
 
     //24
     it("Initially displays all text in English.", async () => {

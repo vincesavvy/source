@@ -1,5 +1,8 @@
 <template>
-  <div class="col-lg-6 offset-lg-3 col-md-8 offset-md-2">
+  <div
+    class="col-lg-6 offset-lg-3 col-md-8 offset-md-2"
+    data-testid="signup-page"
+  >
     <form v-if="!signUpSuccess" class="card mt-5" data-testid="form-sign-up">
       <div class="card-header">
         <h1 class="text-center">{{ $t("signUp") }}</h1>
@@ -42,11 +45,7 @@
             @click.prevent="submit"
             class="btn btn-primary"
           >
-            <span
-              v-if="apiProgress"
-              class="spinner-border spinner-border-sm"
-              role="status"
-            ></span>
+            <Spinner v-if="apiProgress" />
             <!-- This "span" used to have the property: "aria-hidden='true'", but this renders it "hidden" to the DOM. So, a test that would query for its "role" of "status" would fail... So we removed the "aria-hidden='true'". -->
             {{ $t("signUp") }}
           </button>
@@ -63,12 +62,14 @@
 <script>
 import { signUp } from "../api/apiCalls.js";
 import Input from "../components/Input.vue";
+import Spinner from "../components/Spinner.vue";
 
 export default {
   name: "SignUpPage",
 
   components: {
     Input,
+    Spinner
   },
 
   data() {

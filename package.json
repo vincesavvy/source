@@ -14,7 +14,8 @@
     "axios": "^0.24.0",
     "core-js": "^3.6.5",
     "vue": "^3.0.0",
-    "vue-i18n": "^9.2.0-beta.23"
+    "vue-i18n": "^9.2.0-beta.23",
+    "vue-router": "^4.0.12"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.0",
@@ -57,9 +58,16 @@
       "js",
       "vue"
     ],
+    "moduleNameMapper": {
+      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/test/fileMock.js",
+      "\\.(css|less)$": "identity-obj-proxy"
+    },
     "transform": {
       ".*\\.(vue)$": "vue-jest",
       ".*\\.(js)$": "babel-jest"
-    }
+    },
+    "setupFilesAfterEnv": [
+      "./test/setupTest.js"
+    ]
   }
 }
