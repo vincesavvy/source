@@ -7,9 +7,41 @@ import { setupServer } from "msw/node";
 import { rest } from "msw";
 
 const mockServer = setupServer(
-    rest.post("/api/1.0/users/token/:token", (req, res, ctx) => {
-        return res(ctx.status(200))
+  rest.post("/api/1.0/users/token/:token", (req, res, ctx) => {
+    return res(ctx.status(200));
+  }),
+  rest.get("/api/1.0/users", (req, res, ctx) => {
+    return res(
+      ctx.status(200),
+      ctx.json({
+        content: [
+          {
+            id: 1,
+            username: "user-in-list",
+            email: "user-in-list@mail.com",
+            image: null,
+          },
+        ],
+        page: 0,
+        size: 0,
+        totalPages: 0,
       })
+    );
+  }),
+  rest.get("/api/1.0/users/:id", (req, res, ctx) => {
+    const id = Number.parseInt(req.params.id);
+    return res(
+      ctx.status(200),
+      ctx.json({
+        id: id,
+        // username: "user" + id,
+        username: `user${id}`,
+        // email: "user" + id + "@mail.com",
+        email: `user${id}@mail.com`,
+        image: null,
+      })
+    );
+  })
 );
 
 beforeAll(() => {
@@ -122,6 +154,18 @@ describe("Routing", () => {
     await userEvent.click(image);
 
     const page = await screen.findByTestId("home-page"); //NOTE: We are using "findBy..." because the routing is async.
+
+    expect(page).toBeInTheDocument();
+  });
+
+  it("navigates to user page when clicking on username is user list", async () => {
+    setup("/");
+
+    const user = await screen.findByText("user-in-list");
+
+    await userEvent.click(user);
+
+    const page = await screen.findByTestId("user-page");
 
     expect(page).toBeInTheDocument();
   });
