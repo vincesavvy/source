@@ -27,6 +27,20 @@ const mockServer = setupServer(
         totalPages: 0,
       })
     );
+  }),
+  rest.get("/api/1.0/users/:id", (req, res, ctx) => {
+    const id = Number.parseInt(req.params.id);
+    return res(
+      ctx.status(200),
+      ctx.json({
+        id: id,
+        // username: "user" + id,
+        username: `user${id}`,
+        // email: "user" + id + "@mail.com",
+        email: `user${id}@mail.com`,
+        image: null,
+      })
+    );
   })
 );
 
@@ -147,13 +161,12 @@ describe("Routing", () => {
   it("navigates to user page when clicking on username is user list", async () => {
     setup("/");
 
-    const user = await screen.findByText("user-in-list")
+    const user = await screen.findByText("user-in-list");
 
-    await userEvent.click(user)
+    await userEvent.click(user);
 
     const page = await screen.findByTestId("user-page");
-    
-    expect(page).toBeInTheDocument();
 
+    expect(page).toBeInTheDocument();
   });
 });
