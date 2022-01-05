@@ -1,8 +1,11 @@
 <template>
   <div data-testid="user-page">
-    <ProfileCard :user="user" v-if="!pendingApiCall" />
-    <div v-else class="alert alert-secondary text-center">
-    <Spinner size="normal" />
+    <ProfileCard :user="user" v-if="!pendingApiCall && !failResponse" />
+    <div v-else-if="pendingApiCall" class="alert alert-secondary text-center">
+      <Spinner size="normal" />
+    </div>
+    <div class="alert alert-danger text-center" v-if="failResponse">
+        {{failResponse}}
     </div>
   </div>
 </template>
@@ -15,18 +18,24 @@ export default {
   name: "UserPage",
   components: {
     ProfileCard,
-    Spinner
+    Spinner,
   },
   data() {
     return {
       user: {},
-      pendingApiCall: true
+      pendingApiCall: true,
+      failResponse: undefined,
     };
   },
   async mounted() {
-    const response = await getUserById(this.$route.params.id);
-    this.user = response.data;
-    this.pendingApiCall = false
+    try {
+      const response = await getUserById(this.$route.params.id);
+      this.user = response.data;
+    } catch (e) {
+      this.failResponse = e.response.data.message;
+    }
+
+    this.pendingApiCall = false;
   },
 };
 </script>
