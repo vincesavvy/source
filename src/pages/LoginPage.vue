@@ -18,6 +18,10 @@
           v-model="password"
         />
 
+        <div class="alert alert-danger text-center" v-if="failMessage">
+          {{ failMessage }}
+        </div>
+
         <div class="text-center">
           <button
             :disabled="isDisabled || apiProgress"
@@ -47,6 +51,7 @@ export default {
       email: "",
       password: "",
       apiProgress: false,
+      failMessage: undefined,
     };
   },
   computed: {
@@ -60,11 +65,19 @@ export default {
       try {
         await login({ email: this.email, password: this.password });
       } catch (e) {
-        //
+        this.failMessage = e.response.data.message;
       }
       this.apiProgress = false;
     },
   },
+  watch:{
+      email() {
+          this.failMessage = undefined
+      },
+      password() {
+          this.failMessage = undefined
+      }
+  }
 };
 </script>
 

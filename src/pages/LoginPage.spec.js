@@ -16,7 +16,12 @@ const mockServer = setupServer(
   rest.post("/api/1.0/auth", (req, res, context) => {
     requestBody = req.body;
     counter += 1;
-    return res(context.status(401));
+    return res(
+      context.status(401),
+      context.json({
+        message: "Incorrect credentials",
+      })
+    );
   })
 );
 
@@ -146,7 +151,41 @@ describe("Login Page", () => {
 
       await waitForElementToBeRemoved(spinner);
 
-      expect(counter).toBe(1)
+      expect(counter).toBe(1);
     });
+
+    it("displays authentication fail message", async () => {
+      await setupFilled();
+
+      await userEvent.click(button);
+
+      const errorMessage = await screen.findByText("Incorrect credentials")
+
+      expect(errorMessage).toBeInTheDocument()
+    });
+
+    it("clears authentication fail message when email field is changed", async () => {
+        await setupFilled();
+  
+        await userEvent.click(button);
+  
+        const errorMessage = await screen.findByText("Incorrect credentials")
+
+        await userEvent.type(emailInput, "new@mail.com")
+  
+        expect(errorMessage).not.toBeInTheDocument()
+      });
+
+      it("clears authentication fail message when password field is changed", async () => {
+        await setupFilled();
+  
+        await userEvent.click(button);
+  
+        const errorMessage = await screen.findByText("Incorrect credentials")
+
+        await userEvent.type(passwordInput, "N3wP4ssword")
+  
+        expect(errorMessage).not.toBeInTheDocument()
+      });
   });
 });
