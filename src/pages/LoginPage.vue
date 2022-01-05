@@ -20,9 +20,11 @@
 
         <div class="text-center">
           <button
-            disabled
+            :disabled="isDisabled || apiProgress"
             class="btn btn-primary"
+            @click.prevent="submit"
           >
+            <Spinner v-if="apiProgress" />
             Login
           </button>
         </div>
@@ -33,15 +35,35 @@
 
 <script>
 import Input from "../components/Input";
+import Spinner from "../components/Spinner";
+import { login } from "../api/apiCalls";
 export default {
   components: {
     Input,
+    Spinner,
   },
   data() {
     return {
       email: "",
       password: "",
+      apiProgress: false,
     };
+  },
+  computed: {
+    isDisabled() {
+      return !(this.email && this.password);
+    },
+  },
+  methods: {
+    async submit() {
+      this.apiProgress = true;
+      try {
+        await login({ email: this.email, password: this.password });
+      } catch (e) {
+        //
+      }
+      this.apiProgress = false;
+    },
   },
 };
 </script>

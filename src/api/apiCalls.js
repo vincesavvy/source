@@ -23,5 +23,9 @@ export const loadUsers = (page) => {
 };
 
 export const getUserById = (id) => {
-  return axios.get("/api/1.0/users/" + id)
-}
+  return axios.get("/api/1.0/users/" + id);
+};
+
+export const login = (credentials) => {
+  return axios.post("/api/1.0/auth", credentials);
+};
