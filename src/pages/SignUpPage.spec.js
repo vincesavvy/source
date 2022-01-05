@@ -12,6 +12,7 @@ import fr from "../locales/fr.json";
 let requestBody;
 let counter = 0;
 let acceptLanguageHeader;
+
 const mockServer = setupServer(
   rest.post("/api/1.0/users", (req, res, context) => {
     requestBody = req.body;

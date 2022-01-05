@@ -4,6 +4,10 @@ import { setupServer } from "msw/node";
 import { rest } from "msw";
 import userEvent from "@testing-library/user-event";
 import router from "../routes/router";
+import en from "../locales/en.json";
+import fr from "../locales/fr.json";
+import i18n from "../locales/i18n";
+import LanguageSelector from "./LanguageSelector";
 
 const mockServer = setupServer(
   rest.get("/api/1.0/users", (req, res, ctx) => {
@@ -56,9 +60,20 @@ const users = [
 ];
 
 const setup = async () => {
-  render(UserList, {
+  const app = {
+    components: {
+      UserList,
+      LanguageSelector,
+    },
+    template: `
+        <UserList/>
+        <LanguageSelector/>
+        `,
+  };
+
+  render(app, {
     global: {
-      plugins: [router],
+      plugins: [router, i18n],
     },
   });
 
@@ -81,7 +96,7 @@ describe("User List", () => {
 
     const nextPageLink = screen.queryByText("next >");
 
-    expect(nextPageLink).toBeInTheDocument();
+    expect(nextPageLink).toBeVisible();
   });
 
   it("displays next page after clicking next", async () => {
@@ -111,7 +126,7 @@ describe("User List", () => {
 
     await screen.findByText("user7");
 
-    expect(screen.queryByText("next >")).not.toBeInTheDocument();
+    expect(screen.queryByText("next >")).not.toBeVisible();
   });
 
   it("does not display the previous button on the first page", async () => {
@@ -119,7 +134,7 @@ describe("User List", () => {
 
     await screen.findByText("user1");
 
-    expect(screen.queryByText("< previous")).not.toBeInTheDocument();
+    expect(screen.queryByText("< previous")).not.toBeVisible();
   });
 
   it("displays previous page button in page 2", async () => {
@@ -130,7 +145,7 @@ describe("User List", () => {
     await userEvent.click(screen.queryByText("next >"));
     await screen.findByText("user4");
 
-    expect(screen.queryByText("< previous")).toBeInTheDocument();
+    expect(screen.queryByText("< previous")).toBeVisible();
   });
 
   it("displays previous page after clicking previous button", async () => {
@@ -145,5 +160,66 @@ describe("User List", () => {
     const firstUserOnPage1 = await screen.findByText("user1");
 
     expect(firstUserOnPage1).toBeInTheDocument();
+  });
+
+  it("displays spinner during the api call is in progress", async () => {
+    await setup();
+
+    const spinner = screen.queryByRole("status");
+
+    expect(spinner).toBeVisible();
+  });
+
+  it("hides spinner after api call is completed", async () => {
+    await setup();
+
+    const spinner = screen.queryByRole("status");
+    await screen.findByText("user1");
+
+    expect(spinner).not.toBeVisible();
+  });
+
+  it("displays spinner after clicking the next button", async () => {
+    await setup();
+
+    await screen.findByText("user1");
+
+    await userEvent.click(screen.queryByText("next >"));
+
+    const spinner = screen.queryByRole("status");
+
+    expect(spinner).toBeVisible();
+  });
+});
+
+describe("Internationalization", () => {
+  it("initially displays header and navigation links in english", async () => {
+    await setup();
+
+    await screen.findByText("user1");
+    await userEvent.click(screen.queryByText("next >"));
+
+    await screen.findByText("user4");
+
+    expect(screen.queryByText(en.users)).toBeInTheDocument();
+    expect(screen.queryByText(en.nextPage)).toBeInTheDocument();
+    expect(screen.queryByText(en.previousPage)).toBeInTheDocument();
+  });
+
+  it("displays header and navigation links in french after selecting that language", async () => {
+    await setup();
+
+    await screen.findByText("user1");
+    await userEvent.click(screen.queryByText("next >"));
+
+    await screen.findByText("user4");
+
+    const frenchLanguageSelector = screen.queryByTitle("Français");
+
+    await userEvent.click(frenchLanguageSelector)
+
+    expect(screen.queryByText(fr.users)).toBeInTheDocument();
+    expect(screen.queryByText(fr.nextPage)).toBeInTheDocument();
+    expect(screen.queryByText(fr.previousPage)).toBeInTheDocument();
   });
 });
