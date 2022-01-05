@@ -5,16 +5,16 @@
   >
     <form class="card mt-5">
       <div class="card-header">
-        <h1 class="text-center">Login</h1>
+        <h1 class="text-center">{{$t("login")}}</h1>
       </div>
 
       <div class="card-body">
-        <Input id="email" label="Email" v-model="email" />
+        <Input id="email" :label="$t('email')" v-model="email" />
 
         <Input
           type="password"
           id="password"
-          label="Password"
+          :label="$t('password')"
           v-model="password"
         />
 
@@ -29,7 +29,7 @@
             @click.prevent="submit"
           >
             <Spinner v-if="apiProgress" />
-            Login
+            {{$t("login")}}
           </button>
         </div>
       </div>
