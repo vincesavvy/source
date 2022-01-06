@@ -5,7 +5,7 @@ import i18n from "./locales/i18n";
 import router from "./routes/router";
 import { setupServer } from "msw/node";
 import { rest } from "msw";
-import store from "./state/store";
+import store, { resetAuthState } from "./state/store";
 
 const mockServer = setupServer(
   rest.post("/api/1.0/users/token/:token", (req, res, ctx) => {
@@ -183,6 +183,11 @@ describe("Login", () => {
     await userEvent.click(screen.queryByRole("button", { name: "Login" }));
   };
 
+  afterEach(() => {
+    localStorage.clear();
+    resetAuthState();
+  });
+
   it("redirects to home page after successful login", async () => {
     await setupLoggedIn();
 
@@ -225,5 +230,25 @@ describe("Login", () => {
     const header = await screen.findByRole("heading", { name: "user5" });
 
     expect(header).toBeInTheDocument();
+  });
+
+  it("stores logged in state in local storage", async () => {
+    await setupLoggedIn();
+    await screen.findByTestId("home-page");
+
+    const state = JSON.parse(localStorage.getItem("auth"));
+
+    expect(state.isLoggedIn).toBeTruthy();
+  });
+
+  it("displays layout of logged in state", async () => {
+    localStorage.setItem("auth", JSON.stringify({ isLoggedIn: true }));
+    resetAuthState()
+
+    await setup("/");
+
+    const myProfileLink = screen.queryByRole("link", { name: "My Profile" });
+
+    expect(myProfileLink).toBeInTheDocument();
   });
 });

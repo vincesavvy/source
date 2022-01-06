@@ -2,16 +2,30 @@ import { createStore } from "vuex";
 
 const store = createStore({
   state() {
-    return {
-      isLoggedIn: false,
-    };
+    return JSON.parse(localStorage.getItem("auth"));
   },
-  mutations:{
-      loginSuccess(state, id) {
-        state.isLoggedIn = true
-        state.id = id
+  mutations: {
+    loginSuccess(state, id) {
+      state.isLoggedIn = true;
+      state.id = id;
+    },
+    reset(state, initialState) {
+      state.isLoggedIn = false;
+      delete state.id;
+      for (let key in initialState) {
+        state[key] = initialState[key];
       }
-  }
+    },
+  },
 });
 
-export default store
+// IMPORTANT: Whenever something chnages in the store, the "subscribe" function will run.
+store.subscribe((mutation, state) => {
+  localStorage.setItem("auth", JSON.stringify(state));
+});
+
+export const resetAuthState = () => {
+  store.commit("reset", JSON.parse(localStorage.getItem("auth")));
+};
+
+export default store;
