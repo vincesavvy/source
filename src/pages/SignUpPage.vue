@@ -40,15 +40,7 @@
         />
 
         <div class="text-center">
-          <button
-            :disabled="isDisabled || apiProgress"
-            @click.prevent="submit"
-            class="btn btn-primary"
-          >
-            <Spinner v-if="apiProgress" />
-            <!-- This "span" used to have the property: "aria-hidden='true'", but this renders it "hidden" to the DOM. So, a test that would query for its "role" of "status" would fail... So we removed the "aria-hidden='true'". -->
-            {{ $t("signUp") }}
-          </button>
+          <ButtonWithProgress :apiProgress="apiProgress" :disabled="isDisabled" :onClick="submit"> {{$t("signUp")}} </ButtonWithProgress>
         </div>
       </div>
     </form>
@@ -62,14 +54,14 @@
 <script>
 import { signUp } from "../api/apiCalls.js";
 import Input from "../components/Input.vue";
-import Spinner from "../components/Spinner.vue";
+import ButtonWithProgress from "../components/ButtonWithProgress";
 
 export default {
   name: "SignUpPage",
 
   components: {
     Input,
-    Spinner
+    ButtonWithProgress
   },
 
   data() {

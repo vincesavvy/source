@@ -23,14 +23,7 @@
         </div>
 
         <div class="text-center">
-          <button
-            :disabled="isDisabled || apiProgress"
-            class="btn btn-primary"
-            @click.prevent="submit"
-          >
-            <Spinner v-if="apiProgress" />
-            {{$t("login")}}
-          </button>
+          <ButtonWithProgress :apiProgress="apiProgress" :disabled="isDisabled" :onClick="submit"> {{ $t("login")  }} </ButtonWithProgress>
         </div>
       </div>
     </form>
@@ -38,13 +31,13 @@
 </template>
 
 <script>
+import ButtonWithProgress from "../components/ButtonWithProgress.vue";
 import Input from "../components/Input";
-import Spinner from "../components/Spinner";
 import { login } from "../api/apiCalls";
 export default {
   components: {
     Input,
-    Spinner,
+    ButtonWithProgress,
   },
   data() {
     return {
@@ -64,21 +57,21 @@ export default {
       this.apiProgress = true;
       try {
         await login({ email: this.email, password: this.password });
-        this.$router.push("/")
+        this.$router.push("/");
       } catch (e) {
         this.failMessage = e.response.data.message;
       }
       this.apiProgress = false;
     },
   },
-  watch:{
-      email() {
-          this.failMessage = undefined
-      },
-      password() {
-          this.failMessage = undefined
-      }
-  }
+  watch: {
+    email() {
+      this.failMessage = undefined;
+    },
+    password() {
+      this.failMessage = undefined;
+    },
+  },
 };
 </script>
 
