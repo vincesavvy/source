@@ -12,8 +12,11 @@ import LanguageSelector from "../components/LanguageSelector.vue";
 import i18n from "../locales/i18n.js";
 import en from "../locales/en.json";
 import fr from "../locales/fr.json";
+import store from "../state/store";
+import storage from "../state/storage";
 
-let requestBody, acceptLanguageHeader,
+let requestBody,
+  acceptLanguageHeader,
   counter = 0;
 
 const mockServer = setupServer(
@@ -47,13 +50,30 @@ let emailInput, passwordInput, button;
 const setup = async () => {
   render(LoginPage, {
     global: {
-      plugins: [i18n],
+      plugins: [i18n, store],
+      mocks: {
+        $router: {
+          push: () => {},
+        },
+      },
     },
   });
   emailInput = screen.queryByLabelText("Email");
   passwordInput = screen.queryByLabelText("Password");
   button = screen.queryByRole("button", { name: "Login" });
 };
+
+const loginSuccess = rest.post("/api/1.0/auth", (req, res, context) => {
+  return res(
+    context.status(200),
+    context.json({
+      id: 5,
+      username: "user5",
+      image: null,
+      token: "abcdefgh",
+    })
+  );
+});
 
 describe("Login Page", () => {
   describe("Layout", () => {
@@ -196,6 +216,38 @@ describe("Login Page", () => {
 
       expect(errorMessage).not.toBeInTheDocument();
     });
+
+    it("stores id, username and image in storage", async () => {
+      mockServer.use(
+        loginSuccess
+      );
+
+      await setupFilled();
+      await userEvent.click(button);
+
+      const spinner = screen.queryByRole("status");
+      await waitForElementToBeRemoved(spinner);
+
+      const storedState = storage.getItem("auth");
+      const keys = Object.keys(storedState); // ['id', 'username', 'image', 'isLoggedIn']
+
+      expect(keys.includes("id")).toBeTruthy();
+      expect(keys.includes("username")).toBeTruthy();
+      expect(keys.includes("image")).toBeTruthy();
+    });
+
+    it("stores authorization header in storage", async () => {
+      mockServer.use(loginSuccess);
+
+      await setupFilled();
+      await userEvent.click(button);
+
+      const spinner = screen.queryByRole("status");
+      await waitForElementToBeRemoved(spinner);
+
+      const storedState = storage.getItem("auth");
+      expect(storedState.header).toBe("Bearer abcdefgh");
+    });
   });
 
   describe("Internationalization", () => {
@@ -254,18 +306,18 @@ describe("Login Page", () => {
 
       await userEvent.click(frenchLanguage);
 
-      const emailInput = screen.queryByLabelText(fr.email)
-      const passwordInput = screen.queryByLabelText(fr.password)
+      const emailInput = screen.queryByLabelText(fr.email);
+      const passwordInput = screen.queryByLabelText(fr.password);
 
-      await userEvent.type(emailInput, "user100@mail.com")
-      await userEvent.type(passwordInput, "P4ssword")
-      const button = screen.queryByRole("button", { name: fr.login })
-      await userEvent.click(button)
+      await userEvent.type(emailInput, "user100@mail.com");
+      await userEvent.type(passwordInput, "P4ssword");
+      const button = screen.queryByRole("button", { name: fr.login });
+      await userEvent.click(button);
 
       const spinner = screen.queryByRole("status");
-      await waitForElementToBeRemoved(spinner)
+      await waitForElementToBeRemoved(spinner);
 
-        expect(acceptLanguageHeader).toBe("fr")
+      expect(acceptLanguageHeader).toBe("fr");
     });
   });
 });

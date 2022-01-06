@@ -69,7 +69,13 @@ export default {
       try {
         const response = await login({ email: this.email, password: this.password });
         this.$router.push("/");
-        this.$store.commit('loginSuccess', response.data.id)
+
+        const data = {
+          ... response.data,
+          header: `Bearer ${response.data.token}`
+        }
+
+        this.$store.commit('loginSuccess', data)
       } catch (e) {
         this.failMessage = e.response.data.message;
       }
