@@ -5,6 +5,8 @@ import i18n from "./locales/i18n";
 import router from "./routes/router";
 import { setupServer } from "msw/node";
 import { rest } from "msw";
+import store, { resetAuthState } from "./state/store";
+import storage from "./state/storage"
 
 const mockServer = setupServer(
   rest.post("/api/1.0/users/token/:token", (req, res, ctx) => {
@@ -41,6 +43,9 @@ const mockServer = setupServer(
         image: null,
       })
     );
+  }),
+  rest.post("/api/1.0/auth", (req, res, ctx) => {
+    return res(ctx.status(200), ctx.json({ id: 5, username: "user5" }));
   })
 );
 
@@ -59,7 +64,7 @@ afterAll(() => {
 const setup = async (path) => {
   render(App, {
     global: {
-      plugins: [i18n, router],
+      plugins: [i18n, router, store],
     },
   });
   router.replace(path);
@@ -171,19 +176,80 @@ describe("Routing", () => {
   });
 });
 describe("Login", () => {
-  it("redirects to home page after successful login", async () => {
-    mockServer.use(
-      rest.post("/api/1.0/auth", (req, res, ctx) => {
-        return res(ctx.status(200), ctx.json({ username: "user5" }));
-      })
-    );
+  const setupLoggedIn = async () => {
     await setup("/login");
 
     await userEvent.type(screen.queryByLabelText("Email"), "user5@mail.com");
     await userEvent.type(screen.queryByLabelText("Password"), "P4ssword");
     await userEvent.click(screen.queryByRole("button", { name: "Login" }));
+  };
+
+  afterEach(() => {
+    storage.clear();
+    resetAuthState();
+  });
+
+  it("redirects to home page after successful login", async () => {
+    await setupLoggedIn();
 
     const page = await screen.findByTestId("home-page");
     expect(page).toBeInTheDocument();
+  });
+
+  it("hides login and signup links from navbar after successful login", async () => {
+    await setupLoggedIn();
+
+    await screen.findByTestId("home-page");
+
+    const loginLink = screen.queryByRole("link", { name: "Login" });
+    const signupLink = screen.queryByRole("link", { name: "Sign Up" });
+
+    expect(loginLink).not.toBeInTheDocument();
+    expect(signupLink).not.toBeInTheDocument();
+  });
+
+  it("displays My Profile link on nav bar after successful login", async () => {
+    await setupLoggedIn();
+
+    await screen.findByTestId("home-page");
+
+    const myProfileLink = screen.queryByRole("link", { name: "My Profile" });
+
+    expect(myProfileLink).toBeInTheDocument();
+  });
+
+  it("displays User Page for the logged in user after clicking My Profile link", async () => {
+    await setupLoggedIn();
+
+    await screen.findByTestId("home-page");
+
+    const myProfileLink = screen.queryByRole("link", { name: "My Profile" });
+    await userEvent.click(myProfileLink);
+
+    await screen.findByTestId("user-page");
+
+    const header = await screen.findByRole("heading", { name: "user5" });
+
+    expect(header).toBeInTheDocument();
+  });
+
+  it("stores logged in state in local storage", async () => {
+    await setupLoggedIn();
+    await screen.findByTestId("home-page");
+
+    const state = storage.getItem("auth");
+
+    expect(state.isLoggedIn).toBeTruthy();
+  });
+
+  it("displays layout of logged in state", async () => {
+    storage.setItem("auth", { isLoggedIn: true });
+    resetAuthState()
+
+    await setup("/");
+
+    const myProfileLink = screen.queryByRole("link", { name: "My Profile" });
+
+    expect(myProfileLink).toBeInTheDocument();
   });
 });
