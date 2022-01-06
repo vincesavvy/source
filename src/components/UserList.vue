@@ -1,38 +1,44 @@
 <template>
-  <div class="card">
-    <div class="card-header text-center">
-      <h3>{{ $t("users") }}</h3>
-    </div>
+  <div>
+    <Card>
+      <template v-slot:header>
+        <h3>{{ $t("users") }}</h3>
+      </template>
 
-    <ul class="list-group list-group-flush">
-      <li
-        class="list-group-item list-group-item-action"
-        v-for="user in page.content"
-        @click="$router.push('/user/' + user.id)"
-        :key="user.id"
-      >
-        <UserListItem :user="user" />
-      </li>
-    </ul>
+      <template v-slot:default>
+        <ul class="list-group list-group-flush">
+          <li
+            class="list-group-item list-group-item-action"
+            v-for="user in page.content"
+            @click="$router.push('/user/' + user.id)"
+            :key="user.id"
+          >
+            <UserListItem :user="user" />
+          </li>
+        </ul>
+      </template>
 
-    <div class="card-footer text-center">
-      <button
-        class="btn btn-outline-secondary btn-sm float-start"
-        @click="loadData(page.page - 1)"
-        v-show="page.page !== 0 && !pendingApiCall"
-      >
-        {{ $t("previousPage") }}
-      </button>
+      <template v-slot:footer>
+        <button
+          class="btn btn-outline-secondary btn-sm float-start"
+          @click="loadData(page.page - 1)"
+          v-show="page.page !== 0 && !pendingApiCall"
+        >
+          {{ $t("previousPage") }}
+        </button>
 
-      <button
-        class="btn btn-outline-secondary btn-sm float-end"
-        @click="loadData(page.page + 1)"
-        v-show="page.totalPages > page.page + 1 && !pendingApiCall"
-      >
-        {{ $t("nextPage") }}
-      </button>
-      <Spinner v-show="pendingApiCall" size="normal" />
-    </div>
+        <button
+          class="btn btn-outline-secondary btn-sm float-end"
+          @click="loadData(page.page + 1)"
+          v-show="page.totalPages > page.page + 1 && !pendingApiCall"
+        >
+          {{ $t("nextPage") }}
+        </button>
+        <Spinner v-show="pendingApiCall" size="normal" />
+      </template>
+    </Card>
+
+    <!--  -->
   </div>
 </template>
 
@@ -40,10 +46,12 @@
 import { loadUsers } from "../api/apiCalls";
 import UserListItem from "./UserListItem";
 import Spinner from "./Spinner";
+import Card from "./Card.vue";
 export default {
   components: {
     UserListItem,
     Spinner,
+    Card,
   },
   data() {
     return {
