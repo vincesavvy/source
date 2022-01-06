@@ -1,15 +1,90 @@
 <template>
-    <div data-testid="login-page">
-        <h1>Login Page</h1>
-    </div>
+  <div
+    class="col-lg-6 offset-lg-3 col-md-8 offset-md-2"
+    data-testid="login-page"
+  >
+    <form class="mt-5">
+      <Card>
+        <template v-slot:header>
+          <h1>{{ $t("login") }}</h1>
+        </template>
+
+        <template v-slot:body>
+          <Input id="email" :label="$t('email')" v-model="email" />
+
+          <Input
+            type="password"
+            id="password"
+            :label="$t('password')"
+            v-model="password"
+          />
+
+          <div class="alert alert-danger text-center" v-if="failMessage">
+            {{ failMessage }}
+          </div>
+
+          <div class="text-center">
+            <ButtonWithProgress
+              :apiProgress="apiProgress"
+              :disabled="isDisabled"
+              :onClick="submit"
+            >
+              {{ $t("login") }}
+            </ButtonWithProgress>
+          </div>
+        </template>
+      </Card>
+    </form>
+  </div>
 </template>
 
 <script>
-    export default {
-        
-    }
+import ButtonWithProgress from "../components/ButtonWithProgress.vue";
+import Card from "../components/Card.vue";
+import Input from "../components/Input";
+import { login } from "../api/apiCalls";
+export default {
+  name: "LoginPage",
+  components: {
+    Input,
+    ButtonWithProgress,
+    Card,
+  },
+  data() {
+    return {
+      email: "",
+      password: "",
+      apiProgress: false,
+      failMessage: undefined,
+    };
+  },
+  computed: {
+    isDisabled() {
+      return !(this.email && this.password);
+    },
+  },
+  methods: {
+    async submit() {
+      this.apiProgress = true;
+      try {
+        await login({ email: this.email, password: this.password });
+        this.$router.push("/");
+      } catch (e) {
+        this.failMessage = e.response.data.message;
+      }
+      this.apiProgress = false;
+    },
+  },
+  watch: {
+    email() {
+      this.failMessage = undefined;
+    },
+    password() {
+      this.failMessage = undefined;
+    },
+  },
+};
 </script>
 
 <style scoped>
-
 </style>

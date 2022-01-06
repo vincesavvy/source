@@ -170,3 +170,20 @@ describe("Routing", () => {
     expect(page).toBeInTheDocument();
   });
 });
+describe("Login", () => {
+  it("redirects to home page after successful login", async () => {
+    mockServer.use(
+      rest.post("/api/1.0/auth", (req, res, ctx) => {
+        return res(ctx.status(200), ctx.json({ username: "user5" }));
+      })
+    );
+    await setup("/login");
+
+    await userEvent.type(screen.queryByLabelText("Email"), "user5@mail.com");
+    await userEvent.type(screen.queryByLabelText("Password"), "P4ssword");
+    await userEvent.click(screen.queryByRole("button", { name: "Login" }));
+
+    const page = await screen.findByTestId("home-page");
+    expect(page).toBeInTheDocument();
+  });
+});

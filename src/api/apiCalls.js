@@ -1,12 +1,13 @@
 import axios from "axios";
 import i18n from "../locales/i18n";
 
+axios.interceptors.request.use((req) => {
+  req.headers["Accept-Language"] = i18n.global.locale;
+  return req;
+});
+
 export const signUp = (body) => {
-  return axios.post("/api/1.0/users", body, {
-    headers: {
-      "Accept-Language": i18n.global.locale,
-    },
-  });
+  return axios.post("/api/1.0/users", body);
 };
 
 export const activate = (token) => {
@@ -23,5 +24,9 @@ export const loadUsers = (page) => {
 };
 
 export const getUserById = (id) => {
-  return axios.get("/api/1.0/users/" + id)
-}
+  return axios.get("/api/1.0/users/" + id);
+};
+
+export const login = (credentials) => {
+  return axios.post("/api/1.0/auth", credentials);
+};

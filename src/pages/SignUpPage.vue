@@ -3,54 +3,54 @@
     class="col-lg-6 offset-lg-3 col-md-8 offset-md-2"
     data-testid="signup-page"
   >
-    <form v-if="!signUpSuccess" class="card mt-5" data-testid="form-sign-up">
-      <div class="card-header">
-        <h1 class="text-center">{{ $t("signUp") }}</h1>
-      </div>
+    <form v-if="!signUpSuccess" class="mt-5" data-testid="form-sign-up">
+      <Card>
+        <template v-slot:header>
+          <h1>{{ $t("signUp") }}</h1>
+        </template>
 
-      <div class="card-body">
-        <Input
-          id="username"
-          :label="$t('username')"
-          :help="errors.username"
-          v-model="username"
-        />
+        <template v-slot:body>
+          <Input
+            id="username"
+            :label="$t('username')"
+            :help="errors.username"
+            v-model="username"
+          />
 
-        <Input
-          id="email"
-          :label="$t('email')"
-          :help="errors.email"
-          v-model="email"
-        />
+          <Input
+            id="email"
+            :label="$t('email')"
+            :help="errors.email"
+            v-model="email"
+          />
 
-        <Input
-          type="password"
-          id="password"
-          :label="$t('password')"
-          :help="errors.password"
-          v-model="password"
-        />
+          <Input
+            type="password"
+            id="password"
+            :label="$t('password')"
+            :help="errors.password"
+            v-model="password"
+          />
 
-        <Input
-          type="password"
-          id="password-repeat"
-          :label="$t('passwordRepeat')"
-          :help="hasPasswordMismatch ? $t('passwordMismatch') : ''"
-          v-model="passwordRepeat"
-        />
+          <Input
+            type="password"
+            id="password-repeat"
+            :label="$t('passwordRepeat')"
+            :help="hasPasswordMismatch ? $t('passwordMismatch') : ''"
+            v-model="passwordRepeat"
+          />
 
-        <div class="text-center">
-          <button
-            :disabled="isDisabled || apiProgress"
-            @click.prevent="submit"
-            class="btn btn-primary"
-          >
-            <Spinner v-if="apiProgress" />
-            <!-- This "span" used to have the property: "aria-hidden='true'", but this renders it "hidden" to the DOM. So, a test that would query for its "role" of "status" would fail... So we removed the "aria-hidden='true'". -->
-            {{ $t("signUp") }}
-          </button>
-        </div>
-      </div>
+          <div class="text-center">
+            <ButtonWithProgress
+              :apiProgress="apiProgress"
+              :disabled="isDisabled"
+              :onClick="submit"
+            >
+              {{ $t("signUp") }}
+            </ButtonWithProgress>
+          </div>
+        </template>
+      </Card>
     </form>
 
     <div v-else class="alert alert-success mt-3">
@@ -62,14 +62,16 @@
 <script>
 import { signUp } from "../api/apiCalls.js";
 import Input from "../components/Input.vue";
-import Spinner from "../components/Spinner.vue";
+import ButtonWithProgress from "../components/ButtonWithProgress";
+import Card from "../components/Card";
 
 export default {
   name: "SignUpPage",
 
   components: {
     Input,
-    Spinner
+    ButtonWithProgress,
+    Card,
   },
 
   data() {
